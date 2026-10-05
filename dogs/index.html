@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Kennel: Dog Breeding</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐶</text></svg>">
+<style>
+:root{
+  --bg:#f2f2f7; --card:#fff; --card2:#f2f2f7; --text:#000; --sub:#6e6e73; --sep:rgba(60,60,67,.14);
+  --blue:#007aff; --pink:#ff2d55; --green:#34c759; --orange:#ff9500; --purple:#af52de; --glass:rgba(249,249,249,.8);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.07); --spring:cubic-bezier(.34,1.4,.64,1); --line:#3a3a3c;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#000; --card:#1c1c1e; --card2:#2c2c2e; --text:#fff; --sub:#98989d; --sep:rgba(84,84,88,.5);
+  --blue:#0a84ff; --pink:#ff375f; --green:#30d158; --orange:#ff9f0a; --purple:#bf5af2; --glass:rgba(22,22,24,.75);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.4); --line:#0d0d0d;
+}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text)}
+body{font:17px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;-webkit-font-smoothing:antialiased;
+  min-height:100dvh;padding-bottom:calc(178px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.nav{position:sticky;top:0;z-index:10;background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:.5px solid var(--sep);padding:env(safe-area-inset-top) 16px 0}
+.nav-in{max-width:1000px;margin:0 auto;height:52px;display:flex;align-items:center;gap:12px}
+.nav h1{font-size:17px;font-weight:600;flex:1}
+.seg{display:flex;background:var(--card2);border-radius:10px;padding:2px;position:relative}
+.seg button{position:relative;z-index:1;padding:5px 14px;font-size:14px;font-weight:500;border-radius:8px;transition:color .2s}
+.seg .thumb{position:absolute;top:2px;bottom:2px;border-radius:8px;background:var(--card);box-shadow:0 2px 6px rgba(0,0,0,.12);transition:all .35s var(--spring)}
+main{max-width:1000px;margin:0 auto;padding:16px}
+.large{font:700 34px/1.1 -apple-system,"SF Pro Display",system-ui;letter-spacing:-.6px;margin:6px 4px 4px}
+.lede{color:var(--sub);margin:0 4px 16px;font-size:15px}
+.prog{background:var(--card);border-radius:20px;padding:14px 16px;box-shadow:var(--shadow);margin-bottom:18px;display:flex;align-items:center;gap:14px}
+.prog .t{flex:1}
+.prog b{font-weight:600} .prog small{color:var(--sub);font-size:13px;display:block}
+.track{height:8px;background:var(--card2);border-radius:4px;overflow:hidden;margin-top:8px}
+.track i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),var(--pink));border-radius:4px;transition:width .8s var(--spring)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+.dog{background:var(--card);border-radius:22px;padding:12px 12px 14px;box-shadow:var(--shadow);text-align:left;position:relative;
+  transition:transform .3s var(--spring),box-shadow .2s;animation:in .45s var(--spring) both}
+.dog:active{transform:scale(.96)}
+.dog.sel{box-shadow:0 0 0 3px var(--blue),var(--shadow)}
+.dog.sel.f{box-shadow:0 0 0 3px var(--pink),var(--shadow)}
+@keyframes in{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+.dog .art{height:96px;border-radius:16px;display:grid;place-items:center;margin-bottom:10px}
+.dog .nm{font-weight:600;display:flex;align-items:center;gap:6px}
+.dog .ln{font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sex{font-size:13px;font-weight:700;width:20px;height:20px;border-radius:50%;display:inline-grid;place-items:center;color:#fff;flex:none}
+.sex.m{background:var(--blue)} .sex.f{background:var(--pink)}
+.gen{position:absolute;top:18px;right:18px;font-size:11px;font-weight:700;padding:3px 7px;border-radius:999px;background:var(--glass);backdrop-filter:blur(8px)}
+.info{position:absolute;top:14px;left:14px;width:28px;height:28px;border-radius:50%;background:var(--glass);backdrop-filter:blur(8px);font-size:14px;font-weight:700;color:var(--blue)}
+.minis{display:flex;gap:4px;margin-top:8px}
+.minis span{flex:1;height:4px;border-radius:2px;background:var(--card2);overflow:hidden}
+.minis span i{display:block;height:100%}
+/* dock */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--glass);backdrop-filter:saturate(180%) blur(22px);-webkit-backdrop-filter:saturate(180%) blur(22px);
+  border-top:.5px solid var(--sep);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.dock-in{max-width:1000px;margin:0 auto}
+.pair{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.slot{flex:1;display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:8px 10px;min-height:56px;box-shadow:var(--shadow);transition:transform .3s var(--spring)}
+.slot.empty{color:var(--sub);font-size:14px;justify-content:center;border:1.5px dashed var(--sep);box-shadow:none;background:transparent}
+.slot .a{width:40px;height:40px;flex:none;border-radius:12px;display:grid;place-items:center}
+.slot b{font-size:15px;display:block;line-height:1.2} .slot small{font-size:12px;color:var(--sub)}
+.x{font-size:22px;color:var(--sub)}
+.btn{width:100%;height:50px;border-radius:15px;background:var(--blue);color:#fff;font-weight:600;font-size:17px;transition:transform .2s var(--spring),opacity .2s}
+.btn:active{transform:scale(.97)} .btn[disabled]{opacity:.35}
+.btn.gray{background:var(--card2);color:var(--blue)} .btn.red{background:transparent;color:#ff3b30}
+.hint{font-size:12px;color:var(--sub);text-align:center;margin-top:7px}
+kbd{font:600 11px ui-monospace,monospace;border:1px solid var(--sep);border-radius:5px;padding:1px 5px}
+@media (hover:none){.hint{display:none}}
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:30;opacity:0;pointer-events:none;transition:opacity .3s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{visibility:hidden;position:fixed;left:0;right:0;bottom:0;z-index:31;max-width:640px;margin:0 auto;background:var(--bg);border-radius:26px 26px 0 0;
+  padding:8px 18px calc(18px + env(safe-area-inset-bottom));max-height:88dvh;overflow:auto;transform:translateY(105%);transition:transform .45s var(--spring),visibility 0s .45s}
+.sheet.on{transform:none;visibility:visible;transition:transform .45s var(--spring)}
+@media (min-width:700px){.sheet{bottom:50%;border-radius:26px;transform:translateY(60%) scale(.96);opacity:0;transition:all .35s var(--spring),visibility 0s .35s}
+  .sheet.on{transform:translateY(50%);opacity:1;visibility:visible;transition:all .35s var(--spring)}}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--sep);margin:0 auto 12px}
+.sheet h2{font:700 24px/1.2 -apple-system,"SF Pro Display",system-ui;letter-spacing:-.4px}
+.sheet .sub{color:var(--sub);font-size:15px;margin-bottom:14px}
+.litter{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0 16px}
+@media (min-width:560px){.litter{grid-template-columns:repeat(4,1fr)}}
+.pup{background:var(--card);border-radius:18px;padding:10px;text-align:center;box-shadow:var(--shadow);position:relative;transition:transform .3s var(--spring),box-shadow .2s;animation:in .5s var(--spring) both}
+.pup:nth-child(2){animation-delay:.06s}.pup:nth-child(3){animation-delay:.12s}.pup:nth-child(4){animation-delay:.18s}
+.pup.keep{box-shadow:0 0 0 3px var(--green),var(--shadow)}
+.pup .chk{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;border:2px solid var(--sep);display:grid;place-items:center;font-size:14px;color:#fff;transition:all .25s var(--spring)}
+.pup.keep .chk{background:var(--green);border-color:var(--green)}
+.pup b{display:block;font-size:15px;margin-top:4px} .pup small{color:var(--sub);font-size:12px;display:block}
+.card{background:var(--card);border-radius:18px;padding:4px 16px;box-shadow:var(--shadow);margin:10px 0}
+.kv{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:15px}
+.kv+.kv{border-top:.5px solid var(--sep)}
+.kv span:first-child{width:96px;color:var(--sub);flex:none}
+.kv .tr{flex:1;height:6px;background:var(--card2);border-radius:3px;overflow:hidden}
+.kv .tr i{display:block;height:100%;border-radius:3px}
+.kv em{font-style:normal;width:30px;text-align:right;font-variant-numeric:tabular-nums}
+.hdr{display:flex;gap:14px;align-items:center;margin-bottom:6px}
+.hdr .art{width:92px;height:92px;border-radius:22px;display:grid;place-items:center;flex:none}
+.ped{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.ped div{background:var(--card);border-radius:14px;padding:8px 10px;font-size:13px;box-shadow:var(--shadow)}
+.ped div b{display:block;font-size:14px}
+.ped .gp{grid-column:span 1;opacity:.85}
+.sec{font-size:13px;text-transform:uppercase;letter-spacing:.3px;color:var(--sub);margin:16px 4px 6px}
+.anc{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:8px 0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:13px;color:var(--sub)}
+.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px}
+.dex{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.dexc{background:var(--card);border-radius:18px;padding:10px;box-shadow:var(--shadow);text-align:center}
+.dexc b{display:block;font-size:14px} .dexc small{font-size:12px;color:var(--sub)}
+.dexc.lock{opacity:.4}
+.dexc .mini{margin-top:8px;height:34px;font-size:14px;border-radius:11px}
+.tree{display:flex;flex-direction:column;gap:14px}
+.genrow h3{font-size:13px;text-transform:uppercase;letter-spacing:.3px;color:var(--sub);margin:0 4px 8px}
+.genrow .rowx{display:flex;gap:10px;overflow-x:auto;padding:2px 4px 8px;scrollbar-width:none}
+.tnode{flex:none;width:136px;background:var(--card);border-radius:16px;padding:8px;box-shadow:var(--shadow);text-align:center;font-size:13px}
+.tnode b{display:block;font-size:14px}
+.tnode small{color:var(--sub)}
+.toast{position:fixed;left:50%;top:calc(66px + env(safe-area-inset-top));transform:translate(-50%,-16px);opacity:0;z-index:40;background:var(--glass);
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:10px 18px;border-radius:999px;box-shadow:var(--shadow);font-weight:600;font-size:15px;
+  transition:all .4s var(--spring);pointer-events:none;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.empty-state{text-align:center;color:var(--sub);padding:40px 10px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="nav"><div class="nav-in"><h1>🐾 Kennel</h1>
+  <div class="seg" id="seg"><span class="thumb" id="thumb"></span><button data-tab="kennel">Dogs</button><button data-tab="dex">Breeds</button><button data-tab="tree">Family</button></div></div></div>
+<main id="app"></main>
+<div class="dock" id="dock"><div class="dock-in">
+  <div class="pair"><div class="slot empty" id="s0">Pick a male</div><span class="x">×</span><div class="slot empty" id="s1">Pick a female</div></div>
+  <button class="btn" id="breed" disabled>Breed</button>
+  <div class="hint"><kbd>Space</kbd> breed · <kbd>Esc</kbd> clear / close · <kbd>Tab</kbd> switch view</div></div></div>
+<div class="scrim" id="scrim"></div><div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ---------- Tyler's breed data ---------- */
+const breeds = [
+ {id:"golden_retriever",name:"Golden Retriever",traits:{size:80,coat_length:75,energy:65,trainability:85,sociability:90,shedding:75},colors:["#FFD700","#FFA500","#FF8C00"],size_category:"large",description:"Friendly, intelligent, and devoted. Great family dogs."},
+ {id:"labrador",name:"Labrador Retriever",traits:{size:75,coat_length:45,energy:80,trainability:90,sociability:85,shedding:65},colors:["#8B4513","#A0522D","#CD853F"],size_category:"large",description:"Outgoing, friendly, and highly trainable. Excellent companions."},
+ {id:"poodle",name:"Poodle",traits:{size:50,coat_length:95,energy:75,trainability:95,sociability:80,shedding:25},colors:["#FFFFFF","#F5F5F5","#E0E0E0"],size_category:"medium",description:"Intelligent, elegant, and hypoallergenic."},
+ {id:"german_shepherd",name:"German Shepherd",traits:{size:80,coat_length:70,energy:75,trainability:90,sociability:65,shedding:70},colors:["#A0522D","#654321","#8B4513"],size_category:"large",description:"Confident, courageous, and loyal. Excellent working dogs."},
+ {id:"border_collie",name:"Border Collie",traits:{size:65,coat_length:60,energy:90,trainability:95,sociability:70,shedding:65},colors:["#2F4F4F","#4682B4","#708090"],size_category:"medium",description:"Highly intelligent and energetic. Excellent herding dogs."},
+ {id:"beagle",name:"Beagle",traits:{size:45,coat_length:50,energy:65,trainability:75,sociability:80,shedding:55},colors:["#CD853F","#D2691E","#A0522D"],size_category:"medium",description:"Friendly, curious, and excellent scent hounds."},
+ {id:"dachshund",name:"Dachshund",traits:{size:30,coat_length:40,energy:65,trainability:70,sociability:75,shedding:45},colors:["#8B4513","#654321","#8B0000"],size_category:"small",description:"Bold, intelligent, and long-bodied. Great companions."},
+ {id:"bulldog",name:"Bulldog",traits:{size:40,coat_length:30,energy:40,trainability:60,sociability:70,shedding:35},colors:["#F5F5DC","#D2B48C","#A0522D"],size_category:"medium",description:"Docile, affectionate, and distinctive in appearance."},
+ {id:"chihuahua",name:"Chihuahua",traits:{size:20,coat_length:40,energy:85,trainability:65,sociability:75,shedding:25},colors:["#C0C0C0","#8B4513","#A52A2A"],size_category:"small",description:"Small, alert, and lively companion dog."},
+ {id:"great_dane",name:"Great Dane",traits:{size:90,coat_length:35,energy:45,trainability:75,sociability:80,shedding:40},colors:["#696969","#2F4F4F","#A9A9A9"],size_category:"jumbo",description:"Large, gentle, and impressive in size."}
+];
+const unlockableBreeds = [
+ {id:"maltese",name:"Maltese",traits:{size:25,coat_length:90,energy:70,trainability:80,sociability:85,shedding:15},colors:["#FFFFFF","#F5F5DC","#FFF8DC"],size_category:"small",unlock_at:3,description:"Small, elegant, and hypoallergenic companion dog."},
+ {id:"corgi",name:"Corgi",traits:{size:35,coat_length:60,energy:75,trainability:85,sociability:90,shedding:50},colors:["#8B4513","#A0522D","#CD853F"],size_category:"small",unlock_at:10,description:"Short-legged, long-bodied, and highly intelligent."},
+ {id:"husky",name:"Husky",traits:{size:70,coat_length:80,energy:85,trainability:70,sociability:80,shedding:75},colors:["#000080","#4169E1","#FFFFFF"],size_category:"large",unlock_at:18,description:"Friendly, intelligent, and known for striking blue eyes."}
+];
+const ALL = [...breeds, ...unlockableBreeds];
+const B = id => ALL.find(b => b.id === id);
+const STEM = {golden_retriever:["Golden","triever"],labrador:["Lab","rador"],poodle:["Poo","doodle"],german_shepherd:["Shep","sherd"],border_collie:["Border","collie"],
+  beagle:["Bea","gle"],dachshund:["Doxie","shund"],bulldog:["Bull","dog"],chihuahua:["Chi","huahua"],great_dane:["Great","dane"],maltese:["Mal","tese"],corgi:["Cor","gi"],husky:["Husk","sky"]};
+const hybridNameMapping = {"golden_retriever+poodle":"Goldendoodle","labrador+poodle":"Labradoodle","golden_retriever+labrador":"Goldador","german_shepherd+poodle":"Shepadoodle",
+  "beagle+poodle":"Poogle","border_collie+poodle":"Bordoodle","dachshund+poodle":"Doxiepoo","chihuahua+poodle":"Chipoo","corgi+poodle":"Corgipoo","maltese+poodle":"Maltipoo",
+  "husky+poodle":"Huskypoo","beagle+labrador":"Beagador","corgi+husky":"Horgi","german_shepherd+husky":"Shepsky","bulldog+beagle":"Beabull","chihuahua+dachshund":"Chiweenie",
+  "golden_retriever+husky":"Goberian","labrador+husky":"Huskador","great_dane+labrador":"Labradane","corgi+german_shepherd":"Corman Shepherd"};
+const MALE = ["Max","Buddy","Charlie","Rocky","Cooper","Duke","Teddy","Jack","Rex","Toby","Milo","Oscar","Leo","Bear","Finn","Winston","Murphy","Tucker","Ollie","Louie","Archie","Gus","Hank","Bruno","Moose","Jasper","Maverick","Loki","Zeus","Apollo","Thor","Diesel","Ace","Brody","Henry","Sam","Dexter","Theo","Harvey","Otis","Walter","Percy","Franklin","George","Arthur","Remy","Beau","Benji","Marley","Chance","Cash","Kobe","Jax","Ranger","Hunter","Shadow","Blaze","Bandit","Copper","Rusty","Bo","Bubba","Frankie","Reggie","Alfie","Monty","Barney","Bruce","Chester","Clyde","Felix","Hugo","Koda","Merlin","Nico","Ralph","Rory","Stanley","Sully","Wyatt","Yogi","Ziggy","Zeke","Atlas","Cosmo","Dash","Goose","Griffin","Rocket","Astro","Bolt","Chip","Pickle","Waffles","Biscuit","Nugget","Beans","Meatball","Pretzel","Bagel","Taco","Nacho","Chewie","Scooby","Watson","Sherlock","Gatsby","Lincoln","Duncan","Angus","Fergus","Seamus","Guinness","Declan","Rowan","Callum","Bentley","Hudson"];
+const FEMALE = ["Luna","Bella","Lucy","Daisy","Molly","Chloe","Lily","Zoe","Mia","Roxy","Sadie","Ellie","Penny","Sophie","Ruby","Gracie","Stella","Nala","Maggie","Dolly","Honey","Sunny","Rosie","Millie","Coco","Abby","Annie","Willow","Piper","Olive","Winnie","Hazel","Maisie","Lola","Harper","Layla","Nova","Maya","Kona","Skye","Misty","Pepper","Ginger","Maple","Mocha","Toffee","Caramel","Cookie","Muffin","Peanut","Poppy","Clover","Blossom","Violet","Ivy","Fern","Flora","Meadow","Autumn","Summer","June","Pearl","Opal","Amber","Jade","Coral","Aspen","Aurora","Lyra","Celeste","Ember","Athena","Freya","Cleo","Juno","Iris","Sage","Sienna","Dakota","Georgia","Josie","Evie","Bonnie","Betty","Mabel","Nellie","Gigi","Mimi","Lulu","Tilly","Tessa","Pippa","Phoebe","Heidi","Holly","Leia","Astrid","Greta","Elsa","Frida","Fiona","Isla","Maeve","Erin","Mae","Elsie"];
+const TRAITS = [["size","Size","#ff9500"],["energy","Energy","#ff2d55"],["trainability","Trainability","#007aff"],["sociability","Sociability","#34c759"],["coat_length","Coat","#af52de"],["shedding","Shedding","#8e8e93"]];
+const PALETTE = ["#ff9500","#007aff","#34c759","#ff2d55","#af52de","#5ac8fa","#ffcc00","#a2845e","#5856d6","#ff3b30","#30b0c7","#64d2ff","#8e8e93"];
+const KENNEL_MAX = 30, KEY = "kennel.v2";
+
+/* ---------- state ---------- */
+let S;
+let sel = [null, null];          // [male id, female id]
+let tab = "kennel", litter = null, sheetOpen = false;
+
+function fresh(){ const s = {dogs:[], archive:{}, hybrids:0, unlocked:[], discovered:[]};
+  [["golden_retriever",1],["labrador",1],["poodle",0],["german_shepherd",0]].forEach(([id,m]) => s.dogs.push(makeDog(B(id), !!m, s))); return s; }
+function load(){ try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.dogs) return s; } catch {} const s = fresh(); save(s); return s; }
+function save(s=S){ try { localStorage.setItem(KEY, JSON.stringify(s)); } catch {} }
+const byId = id => S.dogs.find(d => d.id === id) || S.archive[id];
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+function pickName(male, s=S){
+  const list = male ? MALE : FEMALE, used = new Set(s.dogs.map(d => d.name));
+  const free = list.filter(n => !used.has(n));
+  if (free.length) return free[Math.random()*free.length|0];
+  let base = list[Math.random()*list.length|0], n = 2; while (used.has(base+" "+roman(n))) n++; return base+" "+roman(n);
+}
+const roman = n => ["","I","II","III","IV","V","VI","VII","VIII","IX","X"][n] || n;
+function makeDog(breed, male, s=S){
+  return {id:uid(), breed_id:breed.id, name:pickName(male, s), generation:1, traits:{...breed.traits}, line_name:breed.name,
+    color:breed.colors[Math.random()*breed.colors.length|0], gender:male?"male":"female", parents:[], ancestry:{[breed.id]:1}};
+}
+
+/* ---------- genetics (fixed) ---------- */
+function breedPair(a, b){
+  const pups = [];
+  for (let i = 0; i < 4; i++){
+    const male = Math.random() < .5;           // FIX: name is picked for the puppy's actual sex
+    const p = {id:uid(), name:"", generation:Math.max(a.generation,b.generation)+1, traits:{}, color:null, gender:male?"male":"female", parents:[a.id,b.id], ancestry:{}};
+    for (const t in a.traits){ const avg = (a.traits[t]+b.traits[t])/2; p.traits[t] = clamp(Math.round(avg + avg*.3*(Math.random()-.5)*2*.5), 1, 100); }
+    for (const k in a.ancestry) p.ancestry[k] = (p.ancestry[k]||0) + a.ancestry[k]/2;
+    for (const k in b.ancestry) p.ancestry[k] = (p.ancestry[k]||0) + b.ancestry[k]/2;
+    const keys = Object.keys(p.ancestry);
+    p.breed_id = keys.length === 1 ? keys[0] : null;   // FIX: same-breed litters stay purebred
+    p.line_name = lineName(p.ancestry);
+    p.color = mix(Math.random()<.5 ? a.color : b.color, Math.random()<.5 ? a.color : b.color);
+    pups.push(p);
+  }
+  const taken = new Set(S.dogs.map(d => d.name));
+  pups.forEach(p => { const tmp = {dogs:[...S.dogs, ...pups.filter(q => q.name)]}; p.name = pickName(p.gender==="male", tmp); taken.add(p.name); });
+  return pups;
+}
+function lineName(anc){
+  const top = Object.entries(anc).sort((x,y) => y[1]-x[1]);
+  if (top.length === 1) return B(top[0][0]).name;    // FIX: looks up unlockable breeds too
+  const [[b1,p1],[b2]] = top, key = [b1,b2].sort().join("+");
+  if (p1 >= .75) return B(b1).name + " mix";
+  const base = hybridNameMapping[key] || (STEM[b1][0] + STEM[b2][1]);
+  return top.length >= 3 && top[2][1] >= .2 ? base + " Mutt" : base;
+}
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+function mix(c1, c2){ const h = c => [1,3,5].map(i => parseInt(c.slice(i,i+2),16)); const a = h(c1), b = h(c2);
+  return "#" + a.map((v,i) => clamp(Math.round((v+b[i])/2 + (Math.random()-.5)*36),0,255).toString(16).padStart(2,"0")).join(""); }
+
+/* ---------- art ---------- */
+function shade(c, f){ const v=[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)); return "#"+v.map(x=>clamp(Math.round(x*f),0,255).toString(16).padStart(2,"0")).join(""); }
+function bgFor(c){ return `linear-gradient(160deg, ${c}38, ${c}14)`; }
+function dogSVG(d, w=120){
+  const t = d.traits, c = d.color || "#ccc", dk = shade(c,.72), lt = shade(c,1.12);
+  const s = .72 + t.size/100*.42, leg = 8 + t.size/100*12, fluffy = t.coat_length > 70, floppy = (d.ancestry && Object.keys(d.ancestry).some(k=>["golden_retriever","labrador","beagle","dachshund","poodle","great_dane","maltese","bulldog"].includes(k))) && !(d.ancestry.husky>.4||d.ancestry.german_shepherd>.5||d.ancestry.corgi>.5||d.ancestry.chihuahua>.5);
+  const long = (d.ancestry?.dachshund||0)+(d.ancestry?.corgi||0) > .4 ? 10 : 0;
+  const by = 58 - leg*.25, ol = 'stroke="rgba(0,0,0,.28)" stroke-width="1.4"';
+  const ear = floppy
+    ? `<path d="M75 ${by-24} q10 2 9 20 q-6 3 -11 -4 z" fill="${dk}" ${ol}/>`
+    : `<path d="M74 ${by-26} l5 -16 l8 14 z" fill="${dk}" ${ol}/>`;
+  const fur = fluffy ? `<g fill="${lt}" opacity=".55">${[0,1,2,3,4].map(i=>`<circle cx="${34+i*9-long/2}" cy="${by-11+(i%2)*2}" r="5"/>`).join("")}</g>` : "";
+  return `<svg width="${w}" height="${w*.72}" viewBox="0 0 120 86" aria-hidden="true"><g transform="translate(60 80) scale(${s}) translate(-60 -80)">
+    <ellipse cx="58" cy="80" rx="${34+long/2}" ry="4" fill="rgba(0,0,0,.12)"/>
+    <path d="M${28-long/2} ${by-6} q-14 -8 -10 -22" stroke="${dk}" stroke-width="5" fill="none" stroke-linecap="round"/>
+    ${[26-long/2,36-long/3,64+long/3,74+long/2].map((x,i)=>`<rect x="${x}" y="${by}" width="7" height="${leg+6}" rx="3.5" fill="${i%2?c:dk}" ${ol}/>`).join("")}
+    <ellipse cx="50" cy="${by}" rx="${28+long}" ry="15" fill="${c}" ${ol}/>
+    ${fur}
+    <ellipse cx="78" cy="${by-16}" rx="15" ry="13.5" fill="${c}" ${ol}/>
+    <ellipse cx="91" cy="${by-11}" rx="9" ry="6.5" fill="${lt}" ${ol}/>
+    <circle cx="98" cy="${by-13}" r="2.6" fill="#1c1c1e"/>
+    <circle cx="82" cy="${by-20}" r="2.2" fill="#1c1c1e"/><circle cx="82.7" cy="${by-20.7}" r=".7" fill="#fff"/>
+    ${ear}
+    ${d.gender==="female" ? `<path d="M70 ${by-29} l4 3 l-4 3 z M78 ${by-29} l-4 3 l4 3 z" fill="#ff2d55"/>` : ""}
+  </g></svg>`;
+}
+
+/* ---------- views ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const buzz = ms => navigator.vibrate && navigator.vibrate(ms);
+function toast(t){ const e=$("#toast"); e.textContent=t; e.classList.add("show"); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove("show"),2000); }
+function nextUnlock(){ return unlockableBreeds.find(b => !S.unlocked.includes(b.id)); }
+
+function render(){
+  document.querySelectorAll("#seg button").forEach(b => b.style.color = b.dataset.tab===tab ? "" : "var(--sub)");
+  const act = $(`#seg [data-tab="${tab}"]`), th = $("#thumb"); th.style.left = act.offsetLeft+"px"; th.style.width = act.offsetWidth+"px";
+  $("#dock").style.display = tab==="kennel" ? "" : "none";
+  document.body.style.paddingBottom = tab==="kennel" ? "" : "calc(30px + env(safe-area-inset-bottom))";
+  ({kennel:renderKennel, dex:renderDex, tree:renderTree})[tab]();
+  renderDock();
+}
+function renderKennel(){
+  const nu = nextUnlock(), prev = nu ? ([0,...unlockableBreeds.map(b=>b.unlock_at)][unlockableBreeds.indexOf(nu)]) : 0;
+  const pct = nu ? clamp((S.hybrids-prev)/(nu.unlock_at-prev),0,1)*100 : 100;
+  $("#app").innerHTML = `<div class="large">Your Dogs</div><p class="lede">${S.dogs.length}/${KENNEL_MAX} in the kennel · tap a male and a female, then breed.</p>
+   <div class="prog"><div style="font-size:30px">${nu?"🔒":"🏆"}</div><div class="t"><b>${nu?`Unlock ${nu.name}`:"All breeds unlocked"}</b>
+     <small>${S.hybrids} hybrid pups raised${nu?` · ${nu.unlock_at} needed`:""} · ${S.discovered.length} lines discovered</small><div class="track"><i style="width:${pct}%"></i></div></div></div>
+   <div class="grid">${S.dogs.map((d,i)=>{ const si = sel.indexOf(d.id);
+     return `<button class="dog ${si>=0?"sel":""} ${si===1?"f":""}" data-id="${d.id}" style="animation-delay:${Math.min(i,12)*25}ms">
+       <div class="art" style="background:${bgFor(d.color)}">${dogSVG(d,120)}</div>
+       <span class="info" data-info="${d.id}" aria-label="Details">i</span><span class="gen">G${d.generation}</span>
+       <div class="nm"><span class="sex ${d.gender[0]}">${d.gender==="male"?"♂":"♀"}</span>${esc(d.name)}</div>
+       <div class="ln">${esc(d.line_name)}</div>
+       <div class="minis">${TRAITS.slice(0,4).map(([k,,col])=>`<span title="${k}"><i style="width:${d.traits[k]}%;background:${col}"></i></span>`).join("")}</div></button>`; }).join("")}</div>`;
+  document.querySelectorAll(".dog").forEach(el => el.onclick = e => {
+    if (e.target.closest("[data-info]")) return openDog(el.dataset.id);
+    pick(el.dataset.id);
+  });
+}
+function pick(id){
+  const d = byId(id), slot = d.gender==="male" ? 0 : 1;
+  sel[slot] = sel[slot]===id ? null : id; buzz(8);
+  document.querySelectorAll(".dog").forEach(el => { const si = sel.indexOf(el.dataset.id); el.classList.toggle("sel", si>=0); el.classList.toggle("f", si===1); });
+  renderDock();
+}
+function renderDock(){
+  [0,1].forEach(i => { const el = $("#s"+i), d = sel[i] && byId(sel[i]);
+    if (!d){ el.className="slot empty"; el.innerHTML = i? "Pick a female" : "Pick a male"; return; }
+    el.className="slot"; el.innerHTML = `<div class="a" style="background:${bgFor(d.color)}">${dogSVG(d,40)}</div><div><b>${esc(d.name)}</b><small>${esc(d.line_name)}</small></div>`; });
+  const ok = sel[0] && sel[1], full = S.dogs.length >= KENNEL_MAX;
+  $("#breed").disabled = !ok; $("#breed").textContent = full && ok ? "Kennel full. Release a dog first" : "Breed";
+}
+function doBreed(){
+  if (!sel[0] || !sel[1] || sheetOpen) return;
+  if (S.dogs.length >= KENNEL_MAX) return toast("Kennel is full. Open a dog and release it.");
+  const a = byId(sel[0]), b = byId(sel[1]);
+  if (a.parents.includes(b.id) || b.parents.includes(a.id) || (a.parents.length && a.parents.join()===b.parents.join()))
+    toast("Close relatives. Pups may be less healthy, but it's allowed.");
+  litter = {pups: breedPair(a,b), keep:new Set()}; buzz([10,40,10]); showLitter(a,b);
+}
+function showLitter(a,b){
+  const room = KENNEL_MAX - S.dogs.length;
+  openSheet(`<div class="grab"></div><h2>A litter of ${litter.pups.length}! 🎉</h2>
+    <div class="sub">${esc(a.name)} × ${esc(b.name)} · tap the pups you want to keep${room<4?` (room for ${room})`:""}</div>
+    <div class="litter">${litter.pups.map((p,i)=>`<button class="pup" data-p="${i}"><span class="chk">✓</span>
+      <div style="border-radius:14px;background:${bgFor(p.color)};padding:4px 0">${dogSVG(p,110)}</div>
+      <b><span class="sex ${p.gender[0]}" style="width:17px;height:17px;font-size:11px">${p.gender==="male"?"♂":"♀"}</span> ${esc(p.name)}</b>
+      <small>${esc(p.line_name)}</small><small>Gen ${p.generation}${S.discovered.includes(p.line_name)||p.breed_id?"":" · ✨ new line"}</small></button>`).join("")}</div>
+    <button class="btn" id="keep" disabled>Keep pups</button><div style="height:8px"></div><button class="btn gray" id="none">Let them all go</button>
+    <div class="hint"><kbd>1</kbd>–<kbd>4</kbd> toggle · <kbd>A</kbd> all · <kbd>Space</kbd> keep · <kbd>Esc</kbd> cancel</div>`);
+  document.querySelectorAll(".pup").forEach(el => el.onclick = () => togglePup(+el.dataset.p));
+  $("#keep").onclick = keepPups; $("#none").onclick = closeSheet;
+}
+function togglePup(i){
+  if (!litter || !litter.pups[i]) return;
+  const room = KENNEL_MAX - S.dogs.length;
+  if (!litter.keep.has(i) && litter.keep.size >= room) return toast("No room for more pups");
+  litter.keep.has(i) ? litter.keep.delete(i) : litter.keep.add(i); buzz(8);
+  document.querySelectorAll(".pup").forEach((el,j) => el.classList.toggle("keep", litter.keep.has(j)));
+  const n = litter.keep.size; $("#keep").disabled = !n; $("#keep").textContent = n ? `Keep ${n} pup${n>1?"s":""}` : "Keep pups";
+}
+function keepPups(){
+  if (!litter || !litter.keep.size) return;
+  const kept = [...litter.keep].map(i => litter.pups[i]);
+  S.dogs.push(...kept);
+  let newLines = 0;
+  kept.forEach(p => { if (!p.breed_id){ S.hybrids++; if (!S.discovered.includes(p.line_name)){ S.discovered.push(p.line_name); newLines++; } } });
+  sel = [null,null]; litter = null; closeSheet();
+  checkUnlocks(); save();
+  toast(newLines ? `✨ ${newLines} new line${newLines>1?"s":""} discovered!` : `Welcome home, ${kept.map(p=>p.name).join(" & ")}!`);
+  render();
+}
+function checkUnlocks(){
+  unlockableBreeds.forEach(b => { if (S.hybrids >= b.unlock_at && !S.unlocked.includes(b.id)){
+    S.unlocked.push(b.id); S.dogs.push(makeDog(b, Math.random()<.5)); buzz([20,60,20,60,60]);
+    setTimeout(()=>toast(`🔓 ${b.name} unlocked! One joined your kennel.`), 2100); } });
+}
+function openDog(id){
+  const d = byId(id); if (!d) return;
+  const anc = Object.entries(d.ancestry).sort((x,y)=>y[1]-x[1]);
+  const par = d.parents.map(byId), gp = par.flatMap(p => p ? p.parents.map(byId) : []);
+  const inKennel = S.dogs.some(x => x.id===id);
+  openSheet(`<div class="grab"></div><div class="hdr"><div class="art" style="background:${bgFor(d.color)}">${dogSVG(d,92)}</div>
+    <div><h2>${esc(d.name)}</h2><div class="sub" style="margin:0">${esc(d.line_name)} · ${d.gender==="male"?"♂ Male":"♀ Female"} · Gen ${d.generation}</div></div></div>
+    <div class="sec">Traits</div><div class="card">${TRAITS.map(([k,n,col])=>`<div class="kv"><span>${n}</span><span class="tr"><i style="width:${d.traits[k]}%;background:${col}"></i></span><em>${Math.round(d.traits[k])}</em></div>`).join("")}</div>
+    <div class="sec">Ancestry</div><div class="card" style="padding:12px 16px"><div class="anc">${anc.map(([k,v],i)=>`<span style="width:${v*100}%;background:${PALETTE[ALL.findIndex(b=>b.id===k)%PALETTE.length]}"></span>`).join("")}</div>
+      <div class="legend">${anc.map(([k,v])=>`<span><i style="background:${PALETTE[ALL.findIndex(b=>b.id===k)%PALETTE.length]}"></i>${B(k).name} ${Math.round(v*100)}%</span>`).join("")}</div></div>
+    ${par.length?`<div class="sec">Pedigree</div><div class="ped">${par.map((p,i)=>`<div><small style="color:var(--sub)">${i?"Dam":"Sire"}</small><b>${p?esc(p.name):"Unknown"}</b>${p?esc(p.line_name):""}</div>`).join("")}
+      ${gp.map(p=>`<div class="gp"><small style="color:var(--sub)">Grandparent</small><b>${p?esc(p.name):"Unknown"}</b>${p?esc(p.line_name):""}</div>`).join("")}</div>`:""}
+    <div style="height:10px"></div>
+    ${inKennel?`<button class="btn" id="usepar">Select for breeding</button><div style="height:8px"></div><button class="btn red" id="rel">Release ${esc(d.name)}</button>`:""}`);
+  if (inKennel){
+    $("#usepar").onclick = () => { closeSheet(); const slot = d.gender==="male"?0:1; sel[slot]=id; render(); };
+    let armed = 0;
+    $("#rel").onclick = () => { if (Date.now()-armed > 2500){ armed = Date.now(); $("#rel").textContent = "Tap again to confirm"; return; }
+      S.archive[id] = d; S.dogs = S.dogs.filter(x => x.id!==id); sel = sel.map(s => s===id?null:s); save(); closeSheet(); toast(`${d.name} went to a loving home 💛`); render(); };
+  }
+}
+function renderDex(){
+  const pure = ALL.map(b => { const locked = b.unlock_at && !S.unlocked.includes(b.id); const fake = {traits:b.traits,color:b.colors[0],ancestry:{[b.id]:1},gender:"male"};
+    return `<div class="dexc ${locked?"lock":""}"><div style="border-radius:14px;background:${bgFor(b.colors[0])}">${dogSVG(fake,110)}</div><b>${b.name}</b>
+      <small>${locked?`🔒 ${b.unlock_at} hybrids`:b.size_category}</small>${locked?"":`<button class="btn gray mini" data-adopt="${b.id}">Adopt</button>`}</div>`; }).join("");
+  $("#app").innerHTML = `<div class="large">Breeds</div><p class="lede">Adopt purebreds to grow your gene pool. Breed different lines to discover hybrids.</p>
+    <div class="dex">${pure}</div>
+    <div class="sec" style="margin-top:22px">Discovered lines · ${S.discovered.length}</div>
+    ${S.discovered.length?`<div class="card">${S.discovered.map(n=>`<div class="kv"><span style="width:auto;color:var(--text)">✨ ${esc(n)}</span></div>`).join("")}</div>`:`<div class="empty-state">No hybrids yet. Breed two different breeds to discover one.</div>`}`;
+  document.querySelectorAll("[data-adopt]").forEach(b => b.onclick = () => {
+    if (S.dogs.length >= KENNEL_MAX) return toast("Kennel is full");
+    const br = B(b.dataset.adopt), males = S.dogs.filter(d=>d.gender==="male").length, dog = makeDog(br, males <= S.dogs.length/2);
+    S.dogs.push(dog); save(); buzz(10); toast(`${dog.name} the ${br.name} joined! ${dog.gender==="male"?"♂":"♀"}`); });
+}
+function renderTree(){
+  const all = [...S.dogs], gens = {};
+  all.forEach(d => (gens[d.generation] ||= []).push(d));
+  const keys = Object.keys(gens).sort((a,b)=>a-b);
+  $("#app").innerHTML = `<div class="large">Family</div><p class="lede">Every generation in your kennel. Tap a dog for its full pedigree.</p>
+    <div class="tree">${keys.map(g=>`<div class="genrow"><h3>Generation ${g} · ${gens[g].length}</h3><div class="rowx">${gens[g].map(d=>{
+      const ps = d.parents.map(byId).filter(Boolean).map(p=>p.name).join(" × ");
+      return `<button class="tnode" data-id="${d.id}"><div style="border-radius:12px;background:${bgFor(d.color)}">${dogSVG(d,110)}</div><b>${d.gender==="male"?"♂":"♀"} ${esc(d.name)}</b><small>${esc(d.line_name)}</small>${ps?`<br><small>${esc(ps)}</small>`:""}</button>`; }).join("")}</div></div>`).join("")}</div>
+    <div style="margin-top:26px" class="card"><button class="kv" id="reset" style="width:100%;color:#ff3b30"><span style="width:auto;color:#ff3b30">Start a new kennel</span></button></div>`;
+  document.querySelectorAll(".tnode").forEach(el => el.onclick = () => openDog(el.dataset.id));
+  let armed = 0;
+  $("#reset").onclick = () => { if (Date.now()-armed > 2500){ armed = Date.now(); toast("Tap again to wipe your kennel"); return; }
+    S = fresh(); save(); sel=[null,null]; tab="kennel"; render(); toast("Fresh kennel ready"); };
+}
+
+/* ---------- sheet ---------- */
+function openSheet(html){ $("#sheet").innerHTML = html; $("#sheet").scrollTop = 0; $("#sheet").classList.add("on"); $("#scrim").classList.add("on"); sheetOpen = true; }
+function closeSheet(){ $("#sheet").classList.remove("on"); $("#scrim").classList.remove("on"); sheetOpen = false; litter = null; }
+$("#scrim").onclick = closeSheet;
+(() => { let y0 = null; const sh = $("#sheet");      // swipe down to dismiss
+  sh.addEventListener("touchstart", e => { y0 = sh.scrollTop<=0 ? e.touches[0].clientY : null; }, {passive:true});
+  sh.addEventListener("touchmove", e => { if (y0===null) return; const dy = e.touches[0].clientY - y0; if (dy>0){ sh.style.transition="none"; sh.style.transform=`translateY(${dy}px)`; } }, {passive:true});
+  sh.addEventListener("touchend", e => { if (y0===null) return; const dy = e.changedTouches[0].clientY - y0; sh.style.transition=""; sh.style.transform=""; if (dy>110) closeSheet(); y0=null; });
+})();
+
+/* ---------- controls ---------- */
+document.querySelectorAll("#seg button").forEach(b => b.onclick = () => { tab = b.dataset.tab; window.scrollTo(0,0); render(); });
+$("#breed").onclick = doBreed;
+document.addEventListener("keydown", e => {
+  if (e.metaKey||e.ctrlKey||e.altKey) return;
+  if (e.key==="Escape"){ e.preventDefault(); if (sheetOpen) return closeSheet(); sel=[null,null]; return render(); }
+  if (sheetOpen && litter){
+    const n = parseInt(e.key,10); if (n>=1 && n<=4){ e.preventDefault(); return togglePup(n-1); }
+    if (e.key.toLowerCase()==="a"){ e.preventDefault(); litter.pups.forEach((_,i)=>{ if(!litter.keep.has(i)) togglePup(i); }); return; }
+    if (e.key===" "||e.key==="Enter"){ e.preventDefault(); return keepPups(); }
+    return;
+  }
+  if (sheetOpen) return;
+  if (e.key==="Tab"){ e.preventDefault(); const t=["kennel","dex","tree"]; tab = t[(t.indexOf(tab)+(e.shiftKey?2:1))%3]; window.scrollTo(0,0); return render(); }
+  if ((e.key===" "||e.key==="Enter") && tab==="kennel" && !(document.activeElement && document.activeElement.classList.contains("dog") && e.key==="Enter")){ e.preventDefault(); doBreed(); }
+});
+addEventListener("resize", () => { const act = $(`#seg [data-tab="${tab}"]`), th = $("#thumb"); th.style.left = act.offsetLeft+"px"; th.style.width = act.offsetWidth+"px"; });
+S = load();
+render();
+</script>
+</body>
+</html>

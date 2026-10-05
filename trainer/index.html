@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Logistics Trainer</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚚</text></svg>">
+<style>
+:root{
+  --bg:#f2f2f7; --card:#ffffff; --card2:#f2f2f7; --text:#000; --sub:#6e6e73; --sep:rgba(60,60,67,.14);
+  --blue:#007aff; --green:#34c759; --red:#ff3b30; --orange:#ff9500; --glass:rgba(249,249,249,.78);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 8px 24px rgba(0,0,0,.06);
+  --r:22px; --spring:cubic-bezier(.34,1.4,.64,1);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#000; --card:#1c1c1e; --card2:#2c2c2e; --text:#fff; --sub:#98989d; --sep:rgba(84,84,88,.5);
+  --blue:#0a84ff; --green:#30d158; --red:#ff453a; --orange:#ff9f0a; --glass:rgba(22,22,24,.72);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--text)}
+body{font:17px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;min-height:100dvh;padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer}
+.nav{position:sticky;top:0;z-index:10;background:var(--glass);backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:.5px solid var(--sep);padding:env(safe-area-inset-top) 16px 0}
+.nav-in{max-width:720px;margin:0 auto;height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.nav h1{font-size:17px;font-weight:600;letter-spacing:-.2px}
+.nav .pill{font-size:15px;color:var(--blue);font-weight:500;padding:6px 4px}
+.bar{height:3px;background:var(--sep);border-radius:2px;overflow:hidden;max-width:720px;margin:0 auto}
+.bar i{display:block;height:100%;width:0;background:var(--blue);border-radius:2px;transition:width .5s var(--spring)}
+main{max-width:720px;margin:0 auto;padding:20px 16px}
+.large{font:700 34px/1.1 -apple-system,"SF Pro Display",system-ui,sans-serif;letter-spacing:-.6px;margin:8px 4px 6px}
+.lede{color:var(--sub);margin:0 4px 22px}
+.group-h{font-size:13px;text-transform:uppercase;letter-spacing:.3px;color:var(--sub);margin:22px 20px 7px}
+.list{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.row{display:flex;align-items:center;gap:14px;width:100%;padding:14px 18px;text-align:left;min-height:60px;position:relative}
+.row+.row::before{content:"";position:absolute;top:0;left:66px;right:0;border-top:.5px solid var(--sep)}
+.row:active{background:var(--card2)}
+.ico{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;font-size:19px;flex:none;color:#fff}
+.row b{font-weight:500;display:block}
+.row small{color:var(--sub);font-size:14px}
+.row .chev{margin-left:auto;color:var(--sub);opacity:.6;font-size:20px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 4px 6px;scrollbar-width:none;margin:0 -16px;padding-left:20px;padding-right:20px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 15px;border-radius:999px;background:var(--card);box-shadow:var(--shadow);font-size:15px;font-weight:500;transition:transform .2s var(--spring)}
+.chip:active{transform:scale(.94)}
+.chip.on{background:var(--blue);color:#fff}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+.stat{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+.stat span{display:block;font:700 26px/1.1 -apple-system,"SF Pro Display",system-ui;letter-spacing:-.4px}
+.stat small{color:var(--sub);font-size:13px}
+/* quiz */
+.qcard{background:var(--card);border-radius:28px;padding:24px 22px;box-shadow:var(--shadow);animation:in .45s var(--spring)}
+@keyframes in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.tag{display:inline-block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--blue);
+  background:color-mix(in srgb,var(--blue) 12%,transparent);padding:4px 10px;border-radius:999px;margin-bottom:12px}
+.q{font:600 22px/1.3 -apple-system,"SF Pro Display",system-ui;letter-spacing:-.3px}
+.opts{display:grid;gap:10px;margin-top:20px}
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:15px 16px;min-height:58px;border-radius:16px;
+  background:var(--card2);transition:transform .25s var(--spring),background .2s,box-shadow .2s}
+.opt:not([disabled]):hover{box-shadow:inset 0 0 0 2px var(--blue)}
+.opt:not([disabled]):active{transform:scale(.97)}
+.opt .k{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:14px;font-weight:600;
+  background:var(--card);color:var(--sub);transition:all .2s}
+.opt.right{background:color-mix(in srgb,var(--green) 18%,var(--card2));animation:pop .4s var(--spring)}
+.opt.right .k{background:var(--green);color:#fff}
+.opt.wrong{background:color-mix(in srgb,var(--red) 16%,var(--card2));animation:shake .4s}
+.opt.wrong .k{background:var(--red);color:#fff}
+.opt.dim{opacity:.45}
+@keyframes pop{50%{transform:scale(1.03)}}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.explain{margin-top:16px;padding:16px 18px;border-radius:18px;background:var(--card2);font-size:16px;animation:in .4s var(--spring)}
+.explain h3{font-size:15px;margin-bottom:4px}
+.explain.ok h3{color:var(--green)} .explain.no h3{color:var(--red)}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+  background:var(--glass);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:.5px solid var(--sep)}
+.dock-in{max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:center}
+.btn{flex:1;height:52px;border-radius:16px;background:var(--blue);color:#fff;font-weight:600;font-size:17px;
+  transition:transform .2s var(--spring),opacity .2s}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.35}
+.btn.gray{background:var(--card);color:var(--blue);box-shadow:var(--shadow);flex:0 0 auto;padding:0 20px}
+.hint{font-size:12px;color:var(--sub);text-align:center;margin-top:8px}
+kbd{font:600 11px ui-monospace,monospace;border:1px solid var(--sep);border-radius:5px;padding:1px 5px}
+@media (hover:none){.hint{display:none}}
+.streak{font-size:15px;font-weight:600;color:var(--orange)}
+/* results */
+.ring{width:190px;height:190px;margin:10px auto 14px;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:16;stroke-linecap:round}
+.ring .track{stroke:var(--card2)}
+.ring .val{stroke:var(--green);transition:stroke-dashoffset 1.2s var(--spring)}
+.ring div{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring b{font:700 44px/1 -apple-system,"SF Pro Display",system-ui;letter-spacing:-1px}
+.center{text-align:center}
+.miss{padding:14px 18px}
+.miss+.miss{border-top:.5px solid var(--sep)}
+.miss p{font-weight:500}
+.miss small{color:var(--green);font-size:15px}
+.toast{position:fixed;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translate(-50%,-20px);opacity:0;z-index:20;
+  background:var(--glass);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:10px 18px;border-radius:999px;
+  box-shadow:var(--shadow);font-weight:600;font-size:15px;transition:all .4s var(--spring);pointer-events:none}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="nav"><div class="nav-in"><button class="pill" id="back" hidden>‹ Home</button><h1 id="title">Logistics Trainer</h1><span class="streak" id="streak"></span></div>
+  <div class="bar"><i id="bar"></i></div></div>
+<main id="app"></main>
+<div class="dock" id="dock" hidden><div class="dock-in" id="dockIn"></div><div class="hint" id="hint"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const QUESTIONS = [{"id":1,"type":"terminology","question":"What does POD stand for in logistics?","options":["Pickup Order Date","Point of Delivery","Proof of Delivery","Port of Destination"],"correctAnswer":2,"explanation":"POD stands for Proof of Delivery. This is a document or electronic record that confirms a shipment has been successfully delivered to the consignee. It's crucial for verifying delivery completion and can be used for billing purposes and customer satisfaction tracking."},{"id":2,"type":"terminology","question":"What is the main difference between LTL and FTL?","options":["LTL uses rail, FTL uses trucks","LTL is less than truckload, FTL is full truckload","LTL is for international shipping, FTL is domestic","There is no practical difference"],"correctAnswer":1,"explanation":"LTL stands for Less Than Truckload and refers to shipments that don't require an entire truck's capacity. FTL stands for Full Truckload and refers to shipments that use an entire truck trailer. This distinction is fundamental in logistics pricing and routing."},{"id":3,"type":"scenario","question":"A customer has 2 pallets weighing 1,800 lb total and doesn't need an entire trailer. What service would you initially consider?","options":["FTL","LTL","Rail","Intermodal"],"correctAnswer":1,"explanation":"For a shipment of 2 pallets weighing 1,800 lbs that doesn't require an entire trailer, LTL (Less Than Truckload) would be the most appropriate initial consideration. This is because LTL services are designed for shipments that don't fill an entire truckload but still need transportation."},{"id":4,"type":"terminology","question":"What does BOL mean in logistics?","options":["Bill of Lading","Border Operating License","Business Operations Log","Branch Office Location"],"correctAnswer":0,"explanation":"BOL stands for Bill of Lading. This is a legal document issued by a carrier that serves as a receipt for goods, a contract of carriage, and a document of title. It's essential in freight transportation for tracking and legal purposes."},{"id":5,"type":"terminology","question":"What is a key difference between a shipper and a consignee?","options":["Shipper is the carrier, consignee is the customer","Shipper sends goods, consignee receives them","Shipper pays for transport, consignee arranges delivery","There is no practical difference"],"correctAnswer":1,"explanation":"The shipper is the party that sends goods, while the consignee is the party that receives them. This distinction is fundamental in logistics documentation and responsibility assignment."},{"id":6,"type":"scenario","question":"A customer says their shipment was delivered but asks for proof. What document would you expect to provide?","options":["BOL","POD","Freight class","NMFC code"],"correctAnswer":1,"explanation":"POD (Proof of Delivery) is the document that confirms delivery. This would be what you provide to a customer who requests proof that their shipment was delivered."},{"id":7,"type":"comparison","question":"What is the main practical difference between LTL and FTL in terms of handling?","options":["LTL requires more handling, FTL less","FTL requires more handling, LTL less","Both require the same amount of handling","Handling is determined by carrier policies"],"correctAnswer":0,"explanation":"LTL shipments typically require more handling because they are consolidated with other shipments. FTL shipments generally have less handling since they travel as a single shipment."},{"id":8,"type":"concept","question":"What is the role of a freight broker in the logistics industry?","options":["Matchmaker connecting shippers and carriers","Owns trucks and drivers","Handles only paperwork","Directly transports goods"],"correctAnswer":0,"explanation":"A freight broker acts as a matchmaker in the middle, connecting companies that need to ship goods (shippers) with trucking companies (carriers). We find the right truck for each shipment, negotiate prices, handle paperwork, track loads, and solve problems when issues arise."},{"id":9,"type":"terminology","question":"What does 3PL stand for and why is it important?","options":["Third-Party Logistics provider","Third-Person Logistics provider","Transportation Management Company","Freight Processing Limited"],"correctAnswer":0,"explanation":"3PL stands for Third-Party Logistics provider, which is a broader umbrella term for companies that handle logistics on behalf of others. This is why brokers are often called 3PLs - we manage the entire logistics process for our customers."},{"id":10,"type":"terminology","question":"Who is the shipper in a logistics transaction?","options":["The company receiving goods","The trucking company","The broker who coordinates","The company sending goods"],"correctAnswer":3,"explanation":"The shipper (also called consignor) is the company that has the goods and is sending them out. They're typically our customer who hires us to manage their shipment."},{"id":11,"type":"terminology","question":"What is the difference between a consignee and a receiver?","options":["They are the same thing","Consignee is the shipper, receiver is the carrier","Consignee is the one receiving goods, receiver is another term for carrier","Consignee is the broker, receiver is the shipper"],"correctAnswer":2,"explanation":"The consignee is the company or place that receives the goods at the end of the shipment (where the truck delivers). The receiver is simply another term for the same party - the one getting the goods."},{"id":12,"type":"lifecycle","question":"What is the first step in the shipment lifecycle?","options":["Pickup","Quote","Booking","Delivery"],"correctAnswer":1,"explanation":"The shipment lifecycle begins with the customer requesting a quote (RFQ). We analyze the details, price the load, and send it back to the customer. Once they agree and book, we move to finding a carrier."},{"id":13,"type":"terminology","question":"What is the official record of what's being shipped called?","options":["POD","BOL","ETA","FTL"],"correctAnswer":1,"explanation":"BOL stands for Bill of Lading. This is the official record of what's being shipped that gets signed at pickup and serves as a contract between shipper, carrier, and consignee."},{"id":14,"type":"equipment","question":"What type of trailer is used for temperature-sensitive cargo?","options":["Dry van","Flatbed","Reefer","All of the above"],"correctAnswer":2,"explanation":"A reefer (refrigerated trailer) is specifically designed for temperature-controlled goods. It has a temperature-control unit that can maintain cold, frozen, or warm conditions as needed."},{"id":15,"type":"equipment","question":"What is a flatbed trailer best used for?","options":["Temperature-controlled goods","Oversized or industrial cargo","Standard packaged goods","Frozen food"],"correctAnswer":1,"explanation":"Flatbed trailers are open trailers with no walls or roof, making them ideal for oversized, oddly shaped, or industrial cargo that can't fit in standard box trailers. This includes lumber, steel, machinery, and construction materials."},{"id":16,"type":"pricing","question":"How does a brokerage make money?","options":["By charging customers more than carriers","By charging customers less than carriers","By collecting a fixed fee","By selling insurance"],"correctAnswer":0,"explanation":"A brokerage makes money on the margin - the difference between what the customer pays us and what we pay the carrier. We earn our keep by coordinating, managing, problem-solving, and providing reliability."},{"id":17,"type":"pricing","question":"What is the margin in freight brokerage?","options":["The difference between what customer pays and carrier is paid","The cost of fuel surcharges","The price of the trailer","The time spent loading"],"correctAnswer":0,"explanation":"The margin is the profit we make from each shipment - the difference between the price we charge customers and the price we pay carriers. This covers our costs for coordination, problem-solving, and service."},{"id":18,"type":"ltlftl","question":"What is a key advantage of FTL over LTL?","options":["Lower cost for small shipments","No handling by multiple parties","Requires less paperwork","Better for temperature-controlled goods"],"correctAnswer":1,"explanation":"FTL (Full Truckload) shipments travel directly from pickup to delivery with no stops or handling by other shippers. This reduces damage risk and makes it ideal for high-value, time-sensitive, or fragile cargo."},{"id":19,"type":"ltlftl","question":"What does LTL stand for?","options":["Less Than Truckload","Load To Location","Large Truck Load","Limited Transport Logistics"],"correctAnswer":0,"explanation":"LTL stands for Less Than Truckload. This means customers only have a portion of the trailer space and must share it with other shipments, making it more cost-effective for smaller loads."},{"id":20,"type":"accessorial","question":"What triggers a detention charge?","options":["Driver stays overnight","Customer keeps driver waiting past free time window","Truck is late due to traffic","Driver exceeds speed limit"],"correctAnswer":1,"explanation":"Detention charges are triggered when the customer keeps the driver waiting beyond the agreed-upon free time window (typically 2 hours). This is a common cost that customers can avoid by being prepared."},{"id":21,"type":"accessorial","question":"What is the typical free time window for loading/unloading?","options":["1 hour","2 hours","4 hours","6 hours"],"correctAnswer":1,"explanation":"Most carriers provide 2 hours of free time for loading and unloading. Beyond this, detention charges typically apply, which is why it's important to plan adequate time for these operations."},{"id":22,"type":"crossborder","question":"What is a key difference in cross-border shipping between Canada and US?","options":["Canada allows heavier trucks legally","US allows heavier trucks legally","Canada requires more paperwork","US requires more paperwork"],"correctAnswer":0,"explanation":"Canada permits some axle configurations that carry more weight than standard US setups, which means loads that might be considered 'overweight' in the US could be legal in Canada. This affects capacity planning and pricing."},{"id":23,"type":"scenario","question":"A customer asks about the difference between a freight broker and a carrier. How would you explain it?","options":["They're the same thing","Broker is the shipper, carrier is the receiver","Broker connects shippers with carriers, carrier transports goods","Carrier handles paperwork, broker drives trucks"],"correctAnswer":2,"explanation":"A freight broker acts as an intermediary between shippers and carriers. We connect customers who need to ship goods with trucking companies that have the capacity to transport them."},{"id":24,"type":"scenario","question":"What should you do if a customer asks for a quote but is unsure of their exact shipment details?","options":["Give them a blanket rate","Ask for more information and provide a range estimate","Tell them they'll have to wait for the exact weight","Send them a standard quote"],"correctAnswer":1,"explanation":"It's best to ask for more information about shipment details (weight, dimensions, origin/destination) and then provide a range estimate based on typical rates for similar shipments."},{"id":25,"type":"scenario","question":"If you're quoting an LTL shipment from Toronto to Montreal, what factors would influence the price?","options":["Only weight and distance","Weight, distance, and hazmat classification","Only distance and service level","Weight, distance, service level, and delivery requirements"],"correctAnswer":3,"explanation":"LTL pricing is influenced by multiple factors including weight, distance, service level (standard, expedited), delivery requirements (inside delivery, liftgate), and any special handling needs."},{"id":26,"type":"scenario","question":"A customer is concerned about the safety of their shipment. What should you emphasize?","options":["We guarantee no damage will occur","Our carriers have insurance coverage","We provide tracking information and insurance options","We only use premium carriers"],"correctAnswer":2,"explanation":"We can provide tracking information, discuss insurance options, and explain our carrier selection process to give customers confidence in their shipment's safety."},{"id":27,"type":"scenario","question":"How do you determine if a customer needs LTL or FTL service?","options":["Based on the size of the truck needed","Based on whether they need an entire trailer or just part of one","Based on the shipping distance","Based on the delivery time required"],"correctAnswer":1,"explanation":"The decision between LTL and FTL is based on whether the customer needs an entire trailer (FTL) or can share space with other shipments (LTL). This is primarily determined by shipment size and weight."},{"id":28,"type":"concept","question":"What is the main benefit of using a freight broker?","options":["Lower rates","Access to multiple carriers and better service","Direct control over shipping decisions","Reduced paperwork"],"correctAnswer":1,"explanation":"The main benefit is access to multiple carriers and the expertise to find the best match for each shipment, often resulting in better service and competitive rates."},{"id":29,"type":"concept","question":"What information do you typically need from a customer to provide a quote?","options":["Only the origin and destination","Weight, dimensions, origin, destination, and service requirements","Just the type of goods being shipped","Only the delivery date"],"correctAnswer":1,"explanation":"A comprehensive quote requires weight, dimensions, origin, destination, and specific service requirements to properly price the shipment."},{"id":30,"type":"scenario","question":"What should you do if a customer asks about an estimated delivery time for their LTL shipment?","options":["Give them a precise date","Provide a general timeframe based on distance and service level","Tell them to contact the carrier directly","Ask them to wait until the shipment is booked"],"correctAnswer":1,"explanation":"We can provide a general timeframe based on distance, service level, and typical transit times for LTL shipments, but exact delivery dates are often not available until the carrier is selected."},{"id":31,"type":"terminology","question":"What is a 'liftgate' service?","options":["A type of trailer with a liftgate","A service where the driver helps load/unload goods","A service that lifts goods to a specific height","A service for handling hazardous materials"],"correctAnswer":1,"explanation":"A liftgate service means the carrier will use their equipment to help load or unload goods at the delivery location, typically used when the customer doesn't have loading dock facilities."},{"id":32,"type":"scenario","question":"What would you recommend if a customer is shipping fragile electronics?","options":["Use any standard LTL service","Recommend special handling and insurance","Suggest using a different carrier","Advise against shipping the items"],"correctAnswer":1,"explanation":"For fragile electronics, we should recommend special handling requirements and appropriate insurance coverage to protect the shipment."},{"id":33,"type":"concept","question":"What is the purpose of a freight quote?","options":["To confirm delivery time","To provide an estimated cost for shipping services","To book a specific carrier","To track a shipment"],"correctAnswer":1,"explanation":"A freight quote provides customers with an estimated cost for shipping their goods, allowing them to make informed decisions about their logistics needs."}];
+const TOPICS = {terminology:["Terminology","📖","#007aff"],scenario:["Scenarios","🧭","#5856d6"],comparison:["Comparisons","⚖️","#af52de"],
+  concept:["Concepts","💡","#ff9500"],lifecycle:["Load Lifecycle","🔄","#34c759"],equipment:["Equipment","🚛","#a2845e"],
+  pricing:["Pricing","💲","#30b0c7"],ltlftl:["LTL vs FTL","📦","#ff2d55"],accessorial:["Accessorials","🧾","#ff3b30"],crossborder:["Cross-Border","🇨🇦","#5ac8fa"]};
+const $ = s => document.querySelector(s);
+const store = {get(){try{return JSON.parse(localStorage.getItem("lt.v2"))||{}}catch{return {}}},set(v){try{localStorage.setItem("lt.v2",JSON.stringify(v))}catch{}}};
+let S = Object.assign({best:0, seen:{}, missed:[]}, store.get());   // seen[id] = times correct
+let run = null, topic = "all";
+
+const buzz = ms => navigator.vibrate && navigator.vibrate(ms);
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]} return a; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove("show"),1600)}
+function setBar(p){$("#bar").style.width=(p*100)+"%"}
+
+function home(){
+  run=null; setBar(0); $("#back").hidden=true; $("#title").textContent="Logistics Trainer"; $("#streak").textContent=""; $("#dock").hidden=true;
+  const mastered = QUESTIONS.filter(q => (S.seen[q.id]||0) >= 2).length;
+  const counts = {}; QUESTIONS.forEach(q => counts[q.type]=(counts[q.type]||0)+1);
+  $("#app").innerHTML = `
+    <div class="large">Train</div><p class="lede">${QUESTIONS.length} freight brokerage questions. Learn the terms, then prove it.</p>
+    <div class="stats">
+      <div class="stat"><span>${mastered}<small style="font-size:15px">/${QUESTIONS.length}</small></span><small>Mastered</small></div>
+      <div class="stat"><span>${S.best}%</span><small>Best score</small></div>
+      <div class="stat"><span>${S.missed.length}</span><small>To review</small></div>
+    </div>
+    <div class="group-h">Modes</div>
+    <div class="list">
+      ${row("quick","⚡","#ff9500","Quick 10","Ten random questions")}
+      ${row("all","🎯","#007aff","Full Exam","All "+QUESTIONS.length+" questions, shuffled")}
+      ${row("review","🔁","#ff3b30","Review Missed",S.missed.length?S.missed.length+" questions you got wrong":"Nothing to review yet")}
+    </div>
+    <div class="group-h">Practice by topic</div>
+    <div class="chips">${Object.entries(TOPICS).filter(([k])=>counts[k]).map(([k,[n,i]])=>`<button class="chip" data-topic="${k}">${i} ${n} · ${counts[k]}</button>`).join("")}</div>
+    <div class="group-h" style="margin-top:28px"></div>
+    <div class="list">${row("reset","↺","#8e8e93","Reset progress","Clears mastery and missed list")}</div>`;
+  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>start(b.dataset.mode));
+  document.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>start("topic",b.dataset.topic));
+}
+function row(mode,ico,color,title,sub){return `<button class="row" data-mode="${mode}"><span class="ico" style="background:${color}">${ico}</span><span><b>${title}</b><small>${sub}</small></span><span class="chev">›</span></button>`}
+
+function start(mode, t){
+  if (mode==="reset"){ if(!confirmReset()) return; S={best:0,seen:{},missed:[]}; store.set(S); toast("Progress cleared"); return home(); }
+  let pool = QUESTIONS;
+  if (mode==="quick") pool = shuffle(QUESTIONS).slice(0,10);
+  if (mode==="review") { pool = QUESTIONS.filter(q=>S.missed.includes(q.id)); if(!pool.length) return toast("No missed questions 🎉"); }
+  if (mode==="topic") pool = QUESTIONS.filter(q=>q.type===t);
+  const name = mode==="topic"?TOPICS[t][0]:{quick:"Quick 10",all:"Full Exam",review:"Review"}[mode];
+  run = {name, list: shuffle(pool).map(q=>{const order=shuffle(q.options.map((_,i)=>i));return {...q, order}}), i:0, score:0, streak:0, answered:false, wrong:[]};
+  $("#back").hidden=false; $("#title").textContent=name; $("#dock").hidden=false; show();
+}
+let resetArmed=0;
+function confirmReset(){ if(Date.now()-resetArmed<3000) return true; resetArmed=Date.now(); toast("Tap again to reset"); return false; }
+
+function show(){
+  const q = run.list[run.i]; run.answered=false; setBar(run.i/run.list.length);
+  $("#streak").textContent = run.streak>=3 ? "🔥 "+run.streak : `${run.i+1}/${run.list.length}`;
+  const [tn] = TOPICS[q.type]||[q.type];
+  $("#app").innerHTML = `<div class="qcard"><span class="tag">${esc(tn)}</span><div class="q">${esc(q.question)}</div>
+    <div class="opts">${q.order.map((oi,k)=>`<button class="opt" data-k="${k}"><span class="k">${k+1}</span><span>${esc(q.options[oi])}</span></button>`).join("")}</div>
+    <div id="exp"></div></div>`;
+  document.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(+b.dataset.k));
+  $("#dockIn").innerHTML = `<button class="btn" id="next" disabled>Next</button>`;
+  $("#next").onclick = next;
+  $("#hint").innerHTML = `<kbd>1</kbd>–<kbd>${q.options.length}</kbd> answer · <kbd>Space</kbd> next · <kbd>Esc</kbd> home`;
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function answer(k){
+  if (!run || run.answered) return; run.answered=true;
+  const q = run.list[run.i], picked = q.order[k], ok = picked===q.correctAnswer;
+  document.querySelectorAll(".opt").forEach((b,j)=>{ b.disabled=true; const oi=q.order[j];
+    if (oi===q.correctAnswer) b.classList.add("right"); else if (j===k) b.classList.add("wrong"); else b.classList.add("dim"); });
+  if (ok){ run.score++; run.streak++; S.seen[q.id]=(S.seen[q.id]||0)+1; S.missed=S.missed.filter(id=>id!==q.id); buzz(12);
+    if (run.streak===3||run.streak%5===0) toast("🔥 "+run.streak+" in a row"); }
+  else { run.streak=0; run.wrong.push(q); S.seen[q.id]=0; if(!S.missed.includes(q.id)) S.missed.push(q.id); buzz([30,40,30]); }
+  store.set(S);
+  $("#exp").innerHTML = `<div class="explain ${ok?"ok":"no"}"><h3>${ok?"Correct":"Not quite"}</h3>${esc(q.explanation)}</div>`;
+  $("#streak").textContent = run.streak>=3 ? "🔥 "+run.streak : `${run.i+1}/${run.list.length}`;
+  const n=$("#next"); n.disabled=false; n.textContent = run.i===run.list.length-1 ? "See results" : "Next";
+  setTimeout(()=>$("#exp")?.scrollIntoView({behavior:"smooth",block:"nearest"}),80);
+}
+function next(){ if(!run||!run.answered) return; run.i++; run.i<run.list.length ? show() : results(); }
+
+function results(){
+  setBar(1); const pct = Math.round(run.score/run.list.length*100);
+  if (run.name==="Full Exam" && pct>S.best){ S.best=pct; store.set(S); }
+  const C=2*Math.PI*80, msg = pct>=90?"Outstanding. You know your freight.":pct>=70?"Solid work. Review the misses and go again.":pct>=50?"Getting there. Keep drilling.":"Keep practicing, it'll click.";
+  $("#streak").textContent="";
+  $("#app").innerHTML = `<div class="qcard center">
+    <div class="ring"><svg width="190" height="190" viewBox="0 0 190 190"><circle class="track" cx="95" cy="95" r="80"/>
+      <circle class="val" id="rv" cx="95" cy="95" r="80" stroke-dasharray="${C}" stroke-dashoffset="${C}" style="stroke:${pct>=70?"var(--green)":pct>=50?"var(--orange)":"var(--red)"}"/></svg>
+      <div><span><b>${pct}%</b><br><small style="color:var(--sub)">${run.score} of ${run.list.length}</small></span></div></div>
+    <div class="q" style="font-size:20px">${msg}</div></div>
+    ${run.wrong.length?`<div class="group-h">Review these</div><div class="list">${run.wrong.map(q=>`<div class="miss"><p>${esc(q.question)}</p><small>✓ ${esc(q.options[q.correctAnswer])}</small></div>`).join("")}</div>`:""}`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>$("#rv").style.strokeDashoffset = C*(1-pct/100)));
+  $("#dockIn").innerHTML = `<button class="btn gray" id="h">Home</button><button class="btn" id="again">Try again</button>`;
+  $("#hint").innerHTML = `<kbd>Space</kbd> try again · <kbd>Esc</kbd> home`;
+  const name=run.name, list=run.list; run={...run, done:true};
+  $("#h").onclick=home; $("#again").onclick=()=>{ run={name,list:shuffle(list),i:0,score:0,streak:0,answered:false,wrong:[]}; show(); };
+  if (pct>=90) buzz([20,60,20,60,40]);
+}
+
+document.addEventListener("keydown", e=>{
+  if (e.metaKey||e.ctrlKey||e.altKey) return;
+  if (e.key==="Escape" && run){ e.preventDefault(); return home(); }
+  if (!run) return;
+  if (run.done){ if(e.key===" "||e.key==="Enter"){ e.preventDefault(); $("#again").click(); } return; }
+  const n = parseInt(e.key,10), q = run.list[run.i];
+  if (n>=1 && n<=q.options.length){ e.preventDefault(); return answer(n-1); }
+  const L = "abcd".indexOf(e.key.toLowerCase()); if (L>=0 && L<q.options.length){ e.preventDefault(); return answer(L); }
+  if (e.key===" "||e.key==="Enter"||e.key==="ArrowRight"){ e.preventDefault(); next(); }
+});
+$("#back").onclick = home;
+home();
+</script>
+</body>
+</html>
